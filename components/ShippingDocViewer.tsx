@@ -11,7 +11,6 @@ import {
   CheckSquare, 
   Square,
   Box,
-  Plane,
   ShieldCheck,
   ExternalLink,
   Building2,
@@ -92,6 +91,8 @@ const getStatusColor = (status: string) => {
     default: return 'bg-gray-100 text-gray-700 border-gray-200';
   }
 };
+
+const TRACKING_DOCS_LOGO_URL = 'https://avcoperflor.blob.core.windows.net/operflorimg/powered-by-avatarfresh-32.png';
 
 // --- Sub-components ---
 
@@ -790,7 +791,11 @@ const ShippingDocViewer: FunctionComponent<ViewerProps> = ({ data, onDownloadReq
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Plane className="w-5 h-5 text-purple-600" />
+                <img
+                  src={TRACKING_DOCS_LOGO_URL}
+                  alt="Avatar Fresh"
+                  className="h-5 w-auto shrink-0 object-contain"
+                />
                 <span className="text-xs font-semibold tracking-wider text-purple-600 uppercase">Tracking Documents</span>
                 <a 
                   href="https://avatarfresh.com/app"

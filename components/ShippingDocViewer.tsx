@@ -569,28 +569,45 @@ const ShippingDocViewer: FunctionComponent<ViewerProps> = ({ data, onDownloadReq
 
   // --- Filtering Logic ---
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+  const matchesSearchTerm = (value?: string) => {
+    if (normalizedSearchTerm === '') return true;
+    return value?.toLowerCase().includes(normalizedSearchTerm) ?? false;
+  };
+
   const filterDoc = (doc: Document) => {
-    const term = searchTerm.toLowerCase();
     return (
-      doc.name.toLowerCase().includes(term) ||
-      (doc.displayName?.toLowerCase().includes(term) ?? false) ||
-      (doc.category?.toLowerCase().includes(term) ?? false)
+      matchesSearchTerm(doc.name) ||
+      matchesSearchTerm(doc.displayName) ||
+      matchesSearchTerm(doc.category)
+    );
+  };
+
+  const filterHawbMeta = (hawb: ShipmentData['hawbs'][number]) => {
+    return (
+      matchesSearchTerm(hawb.number) ||
+      matchesSearchTerm(hawb.shipper) ||
+      matchesSearchTerm(hawb.consignee)
     );
   };
 
   const filteredData = useMemo(() => {
     const filteredMaster = data.masterDocuments.filter(filterDoc);
     
-    const filteredHawbs = data.hawbs.map(hawb => ({
-      ...hawb,
-      documents: hawb.documents.filter(filterDoc)
-    })).filter(h => h.documents.length > 0 || (searchTerm === '' && data.hawbs.length > 0)); // Keep HAWB if empty only if no search, else filtered out
+    const filteredHawbs = data.hawbs.map(hawb => {
+      const hawbMatchesMeta = filterHawbMeta(hawb);
+      return {
+        ...hawb,
+        documents: hawbMatchesMeta ? hawb.documents : hawb.documents.filter(filterDoc)
+      };
+    }).filter(h => h.documents.length > 0 || normalizedSearchTerm === ''); // Keep HAWB if empty only if no search, else filtered out
 
     return {
       masterDocuments: filteredMaster,
       hawbs: filteredHawbs
     };
-  }, [data, searchTerm]);
+  }, [data, normalizedSearchTerm]);
 
   // Flatten for "Type View" and "Select All" calculation
   const allVisibleDocs = useMemo(() => {
